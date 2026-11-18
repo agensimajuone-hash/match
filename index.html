@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 帮佣配对问卷</title>
+<style>
+/* One column, thumb-first: a wine-red masthead, then one question at a time. */
+:root {
+  color-scheme: light;
+  --wine: #6e1423;
+  --wine-deep: #4f0d19;
+  --ink: #26171b;
+  --muted: #6d5a60;
+  --line: #e5d8dc;
+  --paper: #f8f4f5;
+  --card: #ffffff;
+  --blush: #f6e9ec;
+  --whatsapp: #128c4a;
+  --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.6; }
+.top { background: var(--wine); color: #fff; padding: 20px 20px 24px; }
+.wrap { max-width: 520px; margin: 0 auto; }
+.brand { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
+.brand b { font-size: 17px; letter-spacing: .02em; }
+.brand span { color: #f0d5db; }
+.top h1 { margin: 14px 0 4px; font-size: 25px; line-height: 1.3; text-wrap: balance; }
+.top p { margin: 0; color: #f6e3e7; font-size: 15px; }
+main { padding: 20px 16px 36px; }
+.meta { display: flex; justify-content: space-between; align-items: center; min-height: 36px; font-size: 14px; color: var(--muted); }
+.back { background: none; border: 0; color: var(--wine); font: inherit; font-weight: 600; padding: 6px 8px 6px 0; cursor: pointer; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 4px 0 18px; }
+.bar i { display: block; height: 100%; background: var(--wine); transition: width .2s ease; }
+h2 { font-size: 21px; line-height: 1.4; margin: 0 0 4px; text-wrap: balance; outline: none; }
+.hint { margin: 0; color: var(--muted); font-size: 15px; }
+.opts { display: grid; gap: 10px; margin-top: 16px; }
+.opt { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 12px 16px; text-align: left; font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; }
+.opt::after { content: "›"; color: var(--wine); font-size: 22px; line-height: 1; }
+.opt:hover { border-color: var(--wine); }
+.opt:active, .opt.on { background: var(--blush); border-color: var(--wine); }
+.opt small { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
+button:focus-visible, a:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.chips li { background: var(--blush); color: var(--wine-deep); border-radius: 6px; padding: 3px 9px; font-size: 14px; }
+section.block { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+section.block h3 { margin: 0 0 8px; font-size: 17px; color: var(--wine); }
+section.block ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+section.block p { margin: 0; }
+.extra { display: block; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-weight: 700; color: var(--wine); }
+textarea { display: block; width: 100%; min-height: 84px; margin-top: 8px; padding: 10px 12px; font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; resize: vertical; }
+textarea:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
+.cta { display: block; margin-top: 16px; padding: 15px 16px; text-align: center; font-weight: 700; color: #fff; background: var(--whatsapp); border-radius: 10px; text-decoration: none; }
+.sub { margin: 8px 0 0; text-align: center; font-size: 14px; color: var(--muted); }
+.again { display: block; width: 100%; margin-top: 12px; padding: 12px; font: inherit; color: var(--wine); font-weight: 600; background: none; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; }
+.note { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Maju One</b><span>自 2000 年</span></div>
+    <h1 id="headline">AI 帮佣配对问卷</h1>
+    <p id="subline">点选 6 题,先看初步简报,再由 AI 为您配对。</p>
+  </div>
+</header>
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<script>
+var WHATSAPP = "60189891966";
+
+var START = {
+  id: "need", q: "您最需要帮佣做什么?", opts: [
+    { v: "elderly", t: "照顾长辈" },
+    { v: "child", t: "照顾小孩" },
+    { v: "house", t: "家务为主", s: "打扫、洗烫、煮饭" }
+  ]
+};
+
+var FLOWS = {
+  elderly: [
+    { id: "mobility", q: "长辈的行动情况比较接近哪一种?", opts: [
+      { t: "可以自己走动", s: "主要需要陪伴和日常协助", chip: "长辈能自己走动",
+        fit: ["性格温和,愿意陪长辈聊天", "细心,能提醒吃药、留意长辈的状况"],
+        watch: ["长辈是否习惯家里多一个人,可以先慢慢适应"] },
+      { t: "需要搀扶,或用助行器、轮椅", chip: "长辈需要搀扶或轮椅",
+        fit: ["有照顾长辈的经验,最好协助过行动不便者", "身体健康,有力气稳当地搀扶", "愿意配合长辈的节奏,不催促"],
+        watch: ["上下床、洗澡、如厕要协助到什么程度", "家里的楼梯和浴室,要做好防跌"] },
+      { t: "大部分时间卧床", chip: "长辈大部分时间卧床",
+        fit: ["有照顾卧床长者的经验", "身体健康,能协助翻身和清洁", "爱干净、责任心强、情绪稳定"],
+        watch: ["长期照护很辛苦,家人要一起分担,并安排帮佣休息"] }
+    ]},
+    { id: "health", q: "长辈有以下情况吗?", opts: [
+      { t: "没有特别情况", chip: "没有特别健康情况" },
+      { t: "慢性病,需要按时吃药", chip: "需要按时吃药",
+        fit: ["做事有规律,能按时提醒吃药"],
+        watch: ["用药和复诊安排由家人负责,帮佣协助提醒"] },
+      { t: "记忆退化或失智", chip: "记忆退化或失智",
+        fit: ["遇到重复的问题也不急躁,能温和应对"],
+        watch: ["门窗、炉火和外出安全要提前安排"] },
+      { t: "需要打针、插管等医疗护理", chip: "需要医疗护理",
+        watch: ["帮佣可以协助日常照料,但不能取代护士,医疗护理要另外安排专业人员"] }
+    ]}
+  ],
+  child: [
+    { id: "age", q: "要照顾的小孩多大?", hint: "有几个小孩的话,选最小的一位。", opts: [
+      { t: "1 岁以下", chip: "小孩 1 岁以下",
+        fit: ["有带婴儿的经验", "细心、爱干净,作息稳定"],
+        watch: ["喂奶、洗澡、消毒的做法要先教清楚", "头几周最好有大人在旁边看着"] },
+      { t: "1 至 6 岁", chip: "小孩 1 至 6 岁",
+        fit: ["喜欢小孩、有活力", "有带小孩的经验,安全意识好"],
+        watch: ["家里的规矩要先说好,例如看屏幕时间和零食"] },
+      { t: "7 岁以上", chip: "小孩 7 岁以上",
+        fit: ["做事可靠,能配合上学和补习的作息"],
+        watch: ["接送安排要提前说清楚"] }
+    ]},
+    { id: "adult", q: "白天家里有大人吗?", opts: [
+      { t: "有,一直有人", chip: "白天有大人在家",
+        fit: ["愿意听从家人的带孩子方式"] },
+      { t: "有时有", chip: "白天有时有大人",
+        fit: ["能独立处理日常,有事会主动联络"] },
+      { t: "没有,大人都上班", chip: "白天没有大人",
+        fit: ["独立、可靠,有带小孩的实际经验"],
+        watch: ["紧急联络人和突发情况的处理步骤要写下来"] }
+    ]}
+  ],
+  house: [
+    { id: "size", q: "您住哪一种房子?", opts: [
+      { t: "公寓", chip: "住公寓", fit: ["做事整齐,习惯固定的家务流程"] },
+      { t: "排屋", chip: "住排屋", fit: ["体力好,上下楼打扫没问题"] },
+      { t: "半独立或独立洋房", chip: "住半独立或独立洋房",
+        fit: ["体力好,有打理大房子的经验"],
+        watch: ["工作量要合理,可以考虑另请钟点清洁分担"] }
+    ]},
+    { id: "cook", q: "需要帮佣煮饭吗?", opts: [
+      { t: "每天都要", chip: "每天要煮饭",
+        fit: ["会煮家常菜,愿意学您家的口味"],
+        watch: ["先把家里的口味和忌口写下来,教起来比较快"] },
+      { t: "偶尔", chip: "偶尔煮饭", fit: ["能帮忙备料和简单煮食"] },
+      { t: "不用", chip: "不用煮饭" }
+    ]}
+  ]
+};
+
+var COMMON = [
+  { id: "lang", q: "家人平时主要讲什么语言?", opts: [
+    { t: "华语或方言", chip: "讲华语或方言",
+      watch: ["如果一定要会华语,人选可能较少;也可以用简单词语慢慢沟通"] },
+    { t: "英语", chip: "讲英语", fit: ["能听懂基本英语"] },
+    { t: "马来语", chip: "讲马来语", fit: ["能用马来语沟通"] },
+    { t: "都可以", chip: "语言都可以" }
+  ]},
+  { id: "home", q: "家里有养狗或煮猪肉吗?", hint: "有些帮佣因宗教或个人习惯不方便,先说清楚比较好。", opts: [
+    { t: "有养狗", chip: "有养狗", watch: ["家里有狗,要选能接受的人选,并说清楚要不要照顾狗"] },
+    { t: "有煮猪肉", chip: "有煮猪肉", watch: ["家里有猪肉,要先确认帮佣能否接受处理"] },
+    { t: "两样都有", chip: "有狗也有猪肉", watch: ["家里有狗和猪肉,要选两样都能接受的人选"] },
+    { t: "都没有", chip: "没有狗和猪肉" }
+  ]},
+  { id: "time", q: "您大概什么时候需要帮佣?", opts: [
+    { t: "越快越好", chip: "越快越好", time: "新申请一般约需 3 个月。您比较急,请直接联络我们,看看目前可以怎么安排。" },
+    { t: "3 个月内", chip: "3 个月内需要", time: "新申请一般约需 3 个月,建议尽早开始准备。" },
+    { t: "3 个月以后", chip: "3 个月以后需要", time: "时间比较充裕,可以慢慢挑选合适的人选。" },
+    { t: "只是先了解", chip: "先了解", time: "新申请一般约需 3 个月,有需要时可以随时联络我们。" }
+  ]}
+];
+
+var BASE_FIT = {
+  elderly: ["有耐心,尊重长辈"],
+  child: ["有耐心,对小孩温和"],
+  house: ["勤快、细心、爱干净"]
+};
+var NEED_NAME = { elderly: "照顾长辈", child: "照顾小孩", house: "家务为主" };
+
+var step = 0;
+var picks = [];
+var app = document.getElementById("app");
+
+function questions() {
+  var need = picks[0] && picks[0].v;
+  return need ? [START].concat(FLOWS[need], COMMON) : [START];
+}
+var TOTAL = 6;
+
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function renderQuestion(moveFocus) {
+  var q = questions()[step];
+  app.textContent = "";
+  var meta = el("div", "meta");
+  if (step > 0) {
+    var b = el("button", "back", "‹ 上一题");
+    b.type = "button";
+    b.onclick = function () { step--; picks.length = step; renderQuestion(true); };
+    meta.appendChild(b);
+  } else {
+    meta.appendChild(el("span", "", "免费,不用填名字"));
+  }
+  meta.appendChild(el("span", "", "第 " + (step + 1) + " 题,共 " + TOTAL + " 题"));
+  app.appendChild(meta);
+  var bar = el("div", "bar");
+  var fill = el("i");
+  fill.style.width = ((step + 1) / TOTAL * 100) + "%";
+  bar.appendChild(fill);
+  app.appendChild(bar);
+  var h = el("h2", "", q.q);
+  h.tabIndex = -1;
+  app.appendChild(h);
+  if (q.hint) app.appendChild(el("p", "hint", q.hint));
+  var list = el("div", "opts");
+  q.opts.forEach(function (o) {
+    var btn = el("button", "opt");
+    btn.type = "button";
+    var label = el("span", "", o.t);
+    if (o.s) label.appendChild(el("small", "", o.s));
+    btn.appendChild(label);
+    btn.onclick = function () {
+      picks[step] = o;
+      step++;
+      if (step < TOTAL) renderQuestion(true); else renderReport();
+    };
+    list.appendChild(btn);
+  });
+  app.appendChild(list);
+  if (moveFocus) { h.focus({ preventScroll: true }); window.scrollTo(0, 0); }
+}
+
+function buildReport(chosen) {
+  var need = chosen[0].v;
+  var fit = BASE_FIT[need].slice(), watch = [], chips = [NEED_NAME[need]], time = "";
+  chosen.slice(1).forEach(function (o) {
+    fit = fit.concat(o.fit || []);
+    watch = watch.concat(o.watch || []);
+    chips.push(o.chip);
+    if (o.time) time = o.time;
+  });
+  return { fit: fit, watch: watch, chips: chips, time: time };
+}
+
+function addList(title, items) {
+  if (!items.length) return;
+  var s = el("section", "block");
+  s.appendChild(el("h3", "", title));
+  var ul = el("ul");
+  items.forEach(function (t) { ul.appendChild(el("li", "", t)); });
+  s.appendChild(ul);
+  app.appendChild(s);
+}
+
+function renderReport() {
+  var r = buildReport(picks);
+  document.getElementById("headline").textContent = "您的配对简报";
+  document.getElementById("subline").textContent = "这是初步建议。发送问卷后,我们会用 AI 为您配对。";
+  app.textContent = "";
+  var h = el("h2", "", "您家的情况");
+  h.tabIndex = -1;
+  app.appendChild(h);
+  var chips = el("ul", "chips");
+  r.chips.forEach(function (c) { chips.appendChild(el("li", "", c)); });
+  app.appendChild(chips);
+  addList("比较适合的帮佣", r.fit);
+  addList("配对时要留意", r.watch);
+  var s = el("section", "block");
+  s.appendChild(el("h3", "", "时间安排"));
+  s.appendChild(el("p", "", r.time));
+  app.appendChild(s);
+
+  var label = el("label", "extra", "还有什么想补充?(可不填)");
+  label.htmlFor = "extra";
+  var box = el("textarea");
+  box.id = "extra";
+  box.maxLength = 300;
+  box.placeholder = "例如:长辈 82 岁,婆婆,住一楼";
+  label.appendChild(box);
+  app.appendChild(label);
+
+  var a = el("a", "cta", "发送问卷,获取 AI 配对结果");
+  function updateLink() {
+    var msg = "您好 Maju One,我填了 AI 配对问卷,请帮我配对。\n我的情况:" + r.chips.join("、");
+    var more = box.value.trim();
+    if (more) msg += "\n补充:" + more;
+    a.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
+  }
+  box.addEventListener("input", updateLink);
+  updateLink();
+  a.target = "_blank";
+  a.rel = "noopener";
+  app.appendChild(a);
+  app.appendChild(el("p", "sub", "WhatsApp:018-989 1966 · 电话:018-577 1089"));
+
+  var again = el("button", "again", "重新选择");
+  again.type = "button";
+  again.onclick = function () {
+    step = 0; picks = [];
+    document.getElementById("headline").textContent = "AI 帮佣配对问卷";
+    document.getElementById("subline").textContent = "点选 6 题,先看初步简报,再由 AI 为您配对。";
+    renderQuestion(true);
+  };
+  app.appendChild(again);
+  app.appendChild(el("p", "note", "简报仅供初步参考,实际人选以当时可安排的情况为准。您的选择不会被保存,只有按下 WhatsApp 并发送后,我们才会收到。"));
+  h.focus({ preventScroll: true });
+  window.scrollTo(0, 0);
+}
+
+renderQuestion(false);
+</script>
+</body>
+</html>
