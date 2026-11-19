@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI 帮佣配对问卷</title>
 <style>
-/* One column, thumb-first: a wine-red masthead, then one question at a time. */
+/* One column, thumb-first: wine masthead, one question at a time, then a household report. */
 :root {
   color-scheme: light;
   --wine: #6e1423;
@@ -17,6 +17,9 @@
   --card: #ffffff;
   --blush: #f6e9ec;
   --whatsapp: #128c4a;
+  --ok: #2f7a45;
+  --warn: #b5651d;
+  --heavy: #b3261e;
   --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 * { box-sizing: border-box; }
@@ -40,18 +43,48 @@ h2 { font-size: 21px; line-height: 1.4; margin: 0 0 4px; text-wrap: balance; out
 .opt { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 12px 16px; text-align: left; font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; }
 .opt::after { content: "›"; color: var(--wine); font-size: 22px; line-height: 1; }
 .opt:hover { border-color: var(--wine); }
-.opt:active, .opt.on { background: var(--blush); border-color: var(--wine); }
+.opt:active { background: var(--blush); border-color: var(--wine); }
 .opt small { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
-button:focus-visible, a:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
-.chips li { background: var(--blush); color: var(--wine-deep); border-radius: 6px; padding: 3px 9px; font-size: 14px; }
-section.block { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
-section.block h3 { margin: 0 0 8px; font-size: 17px; color: var(--wine); }
-section.block ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
-section.block p { margin: 0; }
-.extra { display: block; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-weight: 700; color: var(--wine); }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
+
+/* report */
+.badge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 18px; text-align: center; }
+.badge .ring { width: 92px; height: 92px; margin: 0 auto 10px; border-radius: 50%; background: var(--wine); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 0 0 5px var(--blush); }
+.badge small { color: var(--muted); font-size: 13px; letter-spacing: .05em; }
+.badge h2 { font-size: 24px; color: var(--wine); margin: 2px 0 6px; }
+.badge p { margin: 0; color: var(--ink); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.chips li { background: var(--blush); color: var(--wine-deep); border-radius: 6px; padding: 2px 9px; font-size: 13px; }
+.sec { margin-top: 18px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.sec h3 { margin: 0 0 2px; font-size: 17px; color: var(--wine); display: flex; gap: 8px; align-items: baseline; }
+.sec h3 span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.sec > p.lead { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.radar { display: block; width: 100%; max-width: 320px; margin: 4px auto 0; }
+.radar text { font-size: 12px; fill: var(--ink); font-family: var(--font); }
+.radar .grid { fill: none; stroke: var(--line); }
+.radar .area { fill: rgba(110,20,35,.18); stroke: var(--wine); stroke-width: 2; }
+.radar .dot { fill: var(--wine); }
+.top3 { margin: 8px 0 0; font-size: 15px; text-align: center; }
+.day { list-style: none; margin: 0; padding: 0; position: relative; }
+.day li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; padding: 6px 0; font-size: 15px; position: relative; }
+.day li b { font-variant-numeric: tabular-nums; color: var(--wine); font-weight: 700; }
+.day li.rest span { color: var(--ok); font-weight: 600; }
+.ins { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ins li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; font-size: 15px; }
+.ins li i { font-style: normal; font-size: 20px; line-height: 1.3; }
+.ins li b { display: block; }
+.ins li span { color: var(--muted); font-size: 14px; }
+.traits { display: grid; gap: 8px; margin: 6px 0 12px; }
+.traits div { background: var(--blush); border-radius: 8px; padding: 8px 12px; font-weight: 600; color: var(--wine-deep); font-size: 15px; }
+.qs { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+.qtitle { margin: 4px 0 6px; font-weight: 700; font-size: 15px; }
+.meter { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin: 8px 0 6px; }
+.meter i { display: block; height: 100%; border-radius: 5px; }
+.load { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.verdict { font-weight: 700; font-size: 18px; margin: 6px 0 4px; }
+.sec p { margin: 0; font-size: 15px; }
+.extra { display: block; margin-top: 22px; font-weight: 700; color: var(--wine); }
 textarea { display: block; width: 100%; min-height: 84px; margin-top: 8px; padding: 10px 12px; font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; resize: vertical; }
-textarea:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
 .cta { display: block; margin-top: 16px; padding: 15px 16px; text-align: center; font-weight: 700; color: #fff; background: var(--whatsapp); border-radius: 10px; text-decoration: none; }
 .sub { margin: 8px 0 0; text-align: center; font-size: 14px; color: var(--muted); }
 .again { display: block; width: 100%; margin-top: 12px; padding: 12px; font: inherit; color: var(--wine); font-weight: 600; background: none; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; }
@@ -63,132 +96,99 @@ textarea:focus-visible { outline: 3px solid #c9788a; outline-offset: 2px; }
 <header class="top">
   <div class="wrap">
     <div class="brand"><b>Maju One</b><span>自 2000 年</span></div>
-    <h1 id="headline">AI 帮佣配对问卷</h1>
-    <p id="subline">点选 6 题,先看初步简报,再由 AI 为您配对。</p>
+    <h1 id="headline">不看八字,看你家的需要</h1>
+    <p id="subline">点选 6 题,马上看到你家的 AI 帮佣报告。</p>
   </div>
 </header>
 <main class="wrap" id="app" aria-live="polite"></main>
 
 <script>
 var WHATSAPP = "60189891966";
+var TOTAL = 6;
 
-var START = {
-  id: "need", q: "您最需要帮佣做什么?", opts: [
-    { v: "elderly", t: "照顾长辈" },
-    { v: "child", t: "照顾小孩" },
-    { v: "house", t: "家务为主", s: "打扫、洗烫、煮饭" }
-  ]
-};
+var START = { id: "need", q: "您最需要帮佣做什么?", opts: [
+  { v: "elderly", t: "照顾长辈" },
+  { v: "child", t: "照顾小孩" },
+  { v: "house", t: "家务为主", s: "打扫、洗烫、煮饭" }
+]};
 
 var FLOWS = {
   elderly: [
-    { id: "mobility", q: "长辈的行动情况比较接近哪一种?", opts: [
-      { t: "可以自己走动", s: "主要需要陪伴和日常协助", chip: "长辈能自己走动",
-        fit: ["性格温和,愿意陪长辈聊天", "细心,能提醒吃药、留意长辈的状况"],
-        watch: ["长辈是否习惯家里多一个人,可以先慢慢适应"] },
-      { t: "需要搀扶,或用助行器、轮椅", chip: "长辈需要搀扶或轮椅",
-        fit: ["有照顾长辈的经验,最好协助过行动不便者", "身体健康,有力气稳当地搀扶", "愿意配合长辈的节奏,不催促"],
-        watch: ["上下床、洗澡、如厕要协助到什么程度", "家里的楼梯和浴室,要做好防跌"] },
-      { t: "大部分时间卧床", chip: "长辈大部分时间卧床",
-        fit: ["有照顾卧床长者的经验", "身体健康,能协助翻身和清洁", "爱干净、责任心强、情绪稳定"],
-        watch: ["长期照护很辛苦,家人要一起分担,并安排帮佣休息"] }
+    { id: "mob", q: "长辈的行动情况比较接近哪一种?", opts: [
+      { v: "A", t: "可以自己走动", s: "主要需要陪伴和日常协助", chip: "长辈能自己走动" },
+      { v: "B", t: "需要搀扶,或用助行器、轮椅", chip: "长辈需要搀扶或轮椅" },
+      { v: "C", t: "大部分时间卧床", chip: "长辈大部分时间卧床" }
     ]},
     { id: "health", q: "长辈有以下情况吗?", opts: [
-      { t: "没有特别情况", chip: "没有特别健康情况" },
-      { t: "慢性病,需要按时吃药", chip: "需要按时吃药",
-        fit: ["做事有规律,能按时提醒吃药"],
-        watch: ["用药和复诊安排由家人负责,帮佣协助提醒"] },
-      { t: "记忆退化或失智", chip: "记忆退化或失智",
-        fit: ["遇到重复的问题也不急躁,能温和应对"],
-        watch: ["门窗、炉火和外出安全要提前安排"] },
-      { t: "需要打针、插管等医疗护理", chip: "需要医疗护理",
-        watch: ["帮佣可以协助日常照料,但不能取代护士,医疗护理要另外安排专业人员"] }
+      { v: "none", t: "没有特别情况", chip: "没有特别健康情况" },
+      { v: "meds", t: "慢性病,需要按时吃药", chip: "需要按时吃药" },
+      { v: "memory", t: "记忆退化或失智", chip: "记忆退化" },
+      { v: "medical", t: "需要打针、插管等医疗护理", chip: "需要医疗护理" }
     ]}
   ],
   child: [
     { id: "age", q: "要照顾的小孩多大?", hint: "有几个小孩的话,选最小的一位。", opts: [
-      { t: "1 岁以下", chip: "小孩 1 岁以下",
-        fit: ["有带婴儿的经验", "细心、爱干净,作息稳定"],
-        watch: ["喂奶、洗澡、消毒的做法要先教清楚", "头几周最好有大人在旁边看着"] },
-      { t: "1 至 6 岁", chip: "小孩 1 至 6 岁",
-        fit: ["喜欢小孩、有活力", "有带小孩的经验,安全意识好"],
-        watch: ["家里的规矩要先说好,例如看屏幕时间和零食"] },
-      { t: "7 岁以上", chip: "小孩 7 岁以上",
-        fit: ["做事可靠,能配合上学和补习的作息"],
-        watch: ["接送安排要提前说清楚"] }
+      { v: "baby", t: "1 岁以下", chip: "小孩 1 岁以下" },
+      { v: "small", t: "1 至 6 岁", chip: "小孩 1 至 6 岁" },
+      { v: "school", t: "7 岁以上", chip: "小孩 7 岁以上" }
     ]},
     { id: "adult", q: "白天家里有大人吗?", opts: [
-      { t: "有,一直有人", chip: "白天有大人在家",
-        fit: ["愿意听从家人的带孩子方式"] },
-      { t: "有时有", chip: "白天有时有大人",
-        fit: ["能独立处理日常,有事会主动联络"] },
-      { t: "没有,大人都上班", chip: "白天没有大人",
-        fit: ["独立、可靠,有带小孩的实际经验"],
-        watch: ["紧急联络人和突发情况的处理步骤要写下来"] }
+      { v: "always", t: "有,一直有人", chip: "白天有大人在家" },
+      { v: "some", t: "有时有", chip: "白天有时有大人" },
+      { v: "none", t: "没有,大人都上班", chip: "白天没有大人" }
     ]}
   ],
   house: [
     { id: "size", q: "您住哪一种房子?", opts: [
-      { t: "公寓", chip: "住公寓", fit: ["做事整齐,习惯固定的家务流程"] },
-      { t: "排屋", chip: "住排屋", fit: ["体力好,上下楼打扫没问题"] },
-      { t: "半独立或独立洋房", chip: "住半独立或独立洋房",
-        fit: ["体力好,有打理大房子的经验"],
-        watch: ["工作量要合理,可以考虑另请钟点清洁分担"] }
+      { v: "condo", t: "公寓", chip: "住公寓" },
+      { v: "terrace", t: "排屋", chip: "住排屋" },
+      { v: "bungalow", t: "半独立或独立洋房", chip: "住洋房" }
     ]},
     { id: "cook", q: "需要帮佣煮饭吗?", opts: [
-      { t: "每天都要", chip: "每天要煮饭",
-        fit: ["会煮家常菜,愿意学您家的口味"],
-        watch: ["先把家里的口味和忌口写下来,教起来比较快"] },
-      { t: "偶尔", chip: "偶尔煮饭", fit: ["能帮忙备料和简单煮食"] },
-      { t: "不用", chip: "不用煮饭" }
+      { v: "daily", t: "每天都要", chip: "每天煮饭" },
+      { v: "some", t: "偶尔", chip: "偶尔煮饭" },
+      { v: "no", t: "不用", chip: "不用煮饭" }
     ]}
   ]
 };
 
 var COMMON = [
   { id: "lang", q: "家人平时主要讲什么语言?", opts: [
-    { t: "华语或方言", chip: "讲华语或方言",
-      watch: ["如果一定要会华语,人选可能较少;也可以用简单词语慢慢沟通"] },
-    { t: "英语", chip: "讲英语", fit: ["能听懂基本英语"] },
-    { t: "马来语", chip: "讲马来语", fit: ["能用马来语沟通"] },
-    { t: "都可以", chip: "语言都可以" }
+    { v: "zh", t: "华语或方言", chip: "讲华语或方言" },
+    { v: "en", t: "英语", chip: "讲英语" },
+    { v: "ms", t: "马来语", chip: "讲马来语" },
+    { v: "any", t: "都可以", chip: "语言都可以" }
   ]},
   { id: "home", q: "家里有养狗或煮猪肉吗?", hint: "有些帮佣因宗教或个人习惯不方便,先说清楚比较好。", opts: [
-    { t: "有养狗", chip: "有养狗", watch: ["家里有狗,要选能接受的人选,并说清楚要不要照顾狗"] },
-    { t: "有煮猪肉", chip: "有煮猪肉", watch: ["家里有猪肉,要先确认帮佣能否接受处理"] },
-    { t: "两样都有", chip: "有狗也有猪肉", watch: ["家里有狗和猪肉,要选两样都能接受的人选"] },
-    { t: "都没有", chip: "没有狗和猪肉" }
+    { v: "dog", t: "有养狗", chip: "有养狗" },
+    { v: "pork", t: "有煮猪肉", chip: "有煮猪肉" },
+    { v: "both", t: "两样都有", chip: "有狗也有猪肉" },
+    { v: "none", t: "都没有", chip: "没有狗和猪肉" }
   ]},
   { id: "time", q: "您大概什么时候需要帮佣?", opts: [
-    { t: "越快越好", chip: "越快越好", time: "新申请一般约需 3 个月。您比较急,请直接联络我们,看看目前可以怎么安排。" },
-    { t: "3 个月内", chip: "3 个月内需要", time: "新申请一般约需 3 个月,建议尽早开始准备。" },
-    { t: "3 个月以后", chip: "3 个月以后需要", time: "时间比较充裕,可以慢慢挑选合适的人选。" },
-    { t: "只是先了解", chip: "先了解", time: "新申请一般约需 3 个月,有需要时可以随时联络我们。" }
+    { v: "asap", t: "越快越好", chip: "越快越好" },
+    { v: "3m", t: "3 个月内", chip: "3 个月内" },
+    { v: "later", t: "3 个月以后", chip: "3 个月以后" },
+    { v: "look", t: "只是先了解", chip: "先了解" }
   ]}
 ];
 
-var BASE_FIT = {
-  elderly: ["有耐心,尊重长辈"],
-  child: ["有耐心,对小孩温和"],
-  house: ["勤快、细心、爱干净"]
-};
-var NEED_NAME = { elderly: "照顾长辈", child: "照顾小孩", house: "家务为主" };
-
-var step = 0;
-var picks = [];
+var step = 0, picks = [];
 var app = document.getElementById("app");
 
 function questions() {
   var need = picks[0] && picks[0].v;
   return need ? [START].concat(FLOWS[need], COMMON) : [START];
 }
-var TOTAL = 6;
-
 function el(tag, cls, text) {
   var n = document.createElement(tag);
   if (cls) n.className = cls;
   if (text != null) n.textContent = text;
   return n;
+}
+function setHeader(h, s) {
+  document.getElementById("headline").textContent = h;
+  document.getElementById("subline").textContent = s;
 }
 
 function renderQuestion(moveFocus) {
@@ -205,8 +205,7 @@ function renderQuestion(moveFocus) {
   }
   meta.appendChild(el("span", "", "第 " + (step + 1) + " 题,共 " + TOTAL + " 题"));
   app.appendChild(meta);
-  var bar = el("div", "bar");
-  var fill = el("i");
+  var bar = el("div", "bar"), fill = el("i");
   fill.style.width = ((step + 1) / TOTAL * 100) + "%";
   bar.appendChild(fill);
   app.appendChild(bar);
@@ -232,79 +231,250 @@ function renderQuestion(moveFocus) {
   if (moveFocus) { h.focus({ preventScroll: true }); window.scrollTo(0, 0); }
 }
 
-function buildReport(chosen) {
-  var need = chosen[0].v;
-  var fit = BASE_FIT[need].slice(), watch = [], chips = [NEED_NAME[need]], time = "";
-  chosen.slice(1).forEach(function (o) {
-    fit = fit.concat(o.fit || []);
-    watch = watch.concat(o.watch || []);
-    chips.push(o.chip);
-    if (o.time) time = o.time;
-  });
-  return { fit: fit, watch: watch, chips: chips, time: time };
+/* ---------- report logic ---------- */
+var AXES = ["长辈照护", "小孩照顾", "煮饭", "打扫", "沟通"];
+
+function answers() {
+  var a = { need: picks[0].v, chips: [] };
+  var qs = questions();
+  picks.forEach(function (o, i) { a[qs[i].id] = o.v; if (o.chip) a.chips.push(o.chip); });
+  a.chips.unshift({ elderly: "照顾长辈", child: "照顾小孩", house: "家务为主" }[a.need]);
+  return a;
 }
 
-function addList(title, items) {
-  if (!items.length) return;
-  var s = el("section", "block");
-  s.appendChild(el("h3", "", title));
-  var ul = el("ul");
-  items.forEach(function (t) { ul.appendChild(el("li", "", t)); });
-  s.appendChild(ul);
+function scores(a) {
+  var s = [0, 0, 2, 2, 1];
+  if (a.need === "elderly") {
+    s[0] = { A: 3, B: 4, C: 5 }[a.mob];
+    if (a.health === "memory") { s[0] += 1; s[4] += 1; }
+    if (a.health === "medical") s[0] = 5;
+    s[4] += 1;
+  } else if (a.need === "child") {
+    s[1] = { baby: 5, small: 4, school: 2 }[a.age];
+    if (a.adult === "none") s[1] += 1;
+    if (a.age === "school") s[2] = 3;
+  } else {
+    s[3] = { condo: 3, terrace: 4, bungalow: 5 }[a.size];
+    s[2] = { daily: 4, some: 2, no: 0 }[a.cook];
+  }
+  if (a.lang === "zh") s[4] += 1;
+  return s.map(function (v) { return Math.max(0, Math.min(5, v)); });
+}
+
+function family(a) {
+  var T = {
+    elderly: {
+      A: ["🌿", "温暖陪伴型家庭", "长辈还很有活力,最需要的是一个能陪伴聊天、细心照料日常的好帮手。"],
+      B: ["🤝", "贴心扶持型家庭", "长辈行动需要人扶一把,帮佣的耐心和体力同样重要。"],
+      C: ["🕯️", "全心照护型家庭", "这是一份需要爱心和体力的工作,也需要家人一起分担。"]
+    },
+    child: {
+      baby: ["🍼", "新手宝贝型家庭", "宝宝的每一天都在长大,需要一位细心、作息稳定的照顾者。"],
+      small: ["🎈", "活力成长型家庭", "小朋友精力满满,需要一位喜欢小孩、安全意识好的帮手。"],
+      school: ["🎒", "学业接送型家庭", "孩子已经上学,重点是配合作息、把家里打点好。"]
+    },
+    house: {
+      condo: ["🏙️", "精致小家型家庭", "空间不大但要求整齐,适合做事有条理的帮佣。"],
+      terrace: ["🏠", "温馨多层型家庭", "上下楼打扫是日常,体力和效率都很重要。"],
+      bungalow: ["🏡", "大屋管家型家庭", "大屋子需要一位勤快、懂得安排工作的管家型帮佣。"]
+    }
+  };
+  var key = { elderly: a.mob, child: a.age, house: a.size }[a.need];
+  return T[a.need][key];
+}
+
+function day(a) {
+  var d = [];
+  if (a.need === "elderly") {
+    d.push(["7:00", "协助长辈起床、梳洗"]);
+    d.push(["8:00", a.health === "meds" ? "准备早餐,提醒长辈吃药" : "准备早餐"]);
+    d.push(["10:00", { A: "陪长辈散步、聊天", B: "扶长辈走动,做简单活动", C: "帮长辈翻身、擦身、换洗" }[a.mob]]);
+    d.push(["12:00", "煮清淡的午餐"]);
+    d.push(["13:00", "午休时间", true]);
+    d.push(["15:00", "打扫家里、洗衣"]);
+    d.push(["16:30", a.health === "memory" ? "陪长辈做简单活动,留意门窗安全" : "陪伴长辈,留意身体状况"]);
+    d.push(["18:00", "煮晚餐"]);
+    d.push(["20:00", "协助长辈洗澡、准备睡觉"]);
+  } else if (a.need === "child") {
+    if (a.age === "baby") {
+      d.push(["7:00", "喂奶、换尿布"]); d.push(["9:00", "帮宝宝洗澡"]);
+      d.push(["10:00", "消毒奶瓶、洗宝宝衣物"]); d.push(["12:00", "准备午餐"]);
+      d.push(["13:00", "宝宝午睡,帮佣休息", true]); d.push(["15:00", "打扫家里"]);
+      d.push(["17:00", "陪宝宝玩"]); d.push(["18:00", "准备晚餐"]); d.push(["20:00", "哄宝宝睡觉"]);
+    } else if (a.age === "small") {
+      d.push(["7:00", "准备早餐"]); d.push(["8:00", "陪小孩玩,或准备上幼儿园"]);
+      d.push(["12:00", "准备午餐"]); d.push(["13:00", "小孩午睡时打扫"]);
+      d.push(["14:30", "休息时间", true]); d.push(["16:00", "陪小孩玩、读故事"]);
+      d.push(["18:00", "准备晚餐"]); d.push(["20:00", "帮小孩洗澡、哄睡"]);
+    } else {
+      d.push(["6:30", "准备早餐和便当"]); d.push(["9:00", "打扫家里、洗衣"]);
+      d.push(["12:00", "准备午餐"]); d.push(["13:00", "休息时间", true]);
+      d.push(["14:30", "迎接孩子放学"]); d.push(["16:00", "陪孩子做功课"]);
+      d.push(["18:00", "准备晚餐"]); d.push(["20:00", "收拾家里"]);
+    }
+  } else {
+    var multi = a.size !== "condo";
+    if (a.cook !== "no") d.push(["7:00", "准备早餐"]);
+    d.push(["8:00", "打扫客厅和厨房"]);
+    d.push(["10:00", "洗衣、晾衣"]);
+    if (a.cook === "daily") d.push(["12:00", "煮午餐"]);
+    d.push(["13:00", "午休时间", true]);
+    d.push(["14:30", multi ? "打扫各层楼的房间和浴室" : "打扫房间和浴室"]);
+    d.push(["16:30", "烫衣服"]);
+    if (a.cook !== "no") d.push(["18:00", "煮晚餐"]);
+    d.push(["19:30", "收拾厨房"]);
+  }
+  return d;
+}
+
+function insights(a) {
+  var r = [];
+  if (a.need === "elderly" && a.mob === "C") r.push(["💪", "卧床照护很辛苦", "晚上的照顾最好由家人轮流分担,帮佣才不会累垮。"]);
+  if (a.health === "memory") r.push(["🔐", "安全比什么都重要", "门窗、炉火和长辈外出,要事先和帮佣说好怎么处理。"]);
+  if (a.health === "medical") r.push(["🩺", "帮佣不能取代护士", "打针、插管等医疗护理,要另外安排专业人员。"]);
+  if (a.adult === "none") r.push(["📋", "白天只有帮佣和孩子在家", "把紧急联络人和突发情况的处理步骤写下来,贴在家里。"]);
+  if (a.age === "baby") r.push(["👀", "头几周最关键", "最好有大人在旁边一起照顾,教她您家的方法。"]);
+  if (a.size === "bungalow") r.push(["🧹", "大屋工作量不小", "可以考虑每周请钟点清洁,分担大扫除。"]);
+  if (a.home === "dog" || a.home === "both") r.push(["🐕", "有狗,人选会明显变少", "要找能接受狗的帮佣,并说清楚要不要照顾狗。"]);
+  if (a.home === "pork" || a.home === "both") r.push(["🍳", "先确认能否处理猪肉", "很多帮佣可以处理,只是自己不吃,面试时问清楚就好。"]);
+  if (a.lang === "zh") r.push(["💬", "会华语的人选比较少", "可以用简单马来语、手势和翻译 App,一般几个月就熟悉了。"]);
+  if (a.time === "asap") r.push(["⏱️", "新申请一般约需 3 个月", "您比较急,建议尽早联络我们,看看目前可以怎么安排。"]);
+  r.push(["🌙", "每周给她一天休息", "休息够的帮佣做得更久、更稳定,对您家也更好。"]);
+  return r.slice(0, 4);
+}
+
+function match(a) {
+  var t, q;
+  if (a.need === "elderly") {
+    t = ["有耐心,尊重长辈", "细心,会留意身体变化",
+      { A: "会煮清淡家常菜", B: "身体好,能稳当搀扶", C: "有照顾卧床长者的经验" }[a.mob]];
+    q = ["以前照顾过的长辈是什么情况?每天怎么安排?", "长辈不肯吃药或发脾气时,你会怎么做?", "长辈突然跌倒,你第一步会做什么?"];
+  } else if (a.need === "child") {
+    t = ["喜欢小孩,有耐心", "安全意识好",
+      { baby: "有带婴儿的经验", small: "有活力,会陪小孩玩", school: "做事可靠,能配合上学作息" }[a.age]];
+    q = ["你照顾过几岁的小孩?", "小孩哭闹不停时,你会怎么做?", "小孩发烧时,你会怎么处理?"];
+  } else {
+    t = ["勤快,做事有条理", "爱干净,注意细节",
+      a.cook === "daily" ? "会煮家常菜,愿意学您家的口味" : "体力好,效率高"];
+    q = ["你一天的打扫顺序是怎样的?", "哪些衣服你会分开洗?", "以前做过多大的房子?"];
+  }
+  if (a.adult === "none") t[1] = "独立,遇到突发情况能冷静处理";
+  return { traits: t, qs: q };
+}
+
+function workload(a, s) {
+  var total = s.reduce(function (x, y) { return x + y; }, 0);
+  var heavy = (a.mob === "C") || (a.size === "bungalow" && a.cook === "daily") || (a.age === "baby" && a.adult === "none");
+  if (heavy || total >= 17) return { pct: 90, color: "var(--heavy)", label: "偏重", text: "这份工作对一位帮佣来说负担不轻。建议家人分担部分工作,或请钟点清洁帮忙,帮佣才能做得长久。" };
+  if (total >= 13) return { pct: 60, color: "var(--warn)", label: "适中", text: "工作量合理。只要作息安排清楚、每周有休息,大部分有经验的帮佣都能胜任。" };
+  return { pct: 32, color: "var(--ok)", label: "轻松", text: "工作量比较轻,适合第一次来马来西亚工作的帮佣慢慢学习。" };
+}
+
+function radarSVG(s) {
+  var NS = "http://www.w3.org/2000/svg", cx = 160, cy = 122, R = 82;
+  var svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 320 250");
+  svg.setAttribute("class", "radar");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", AXES.map(function (n, i) { return n + " " + s[i] + " 分"; }).join(","));
+  function pt(i, r) { var ang = (-90 + 72 * i) * Math.PI / 180; return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)]; }
+  function poly(r) { return AXES.map(function (_, i) { return pt(i, r).join(","); }).join(" "); }
+  for (var k = 1; k <= 5; k++) { var g = document.createElementNS(NS, "polygon"); g.setAttribute("points", poly(R * k / 5)); g.setAttribute("class", "grid"); svg.appendChild(g); }
+  AXES.forEach(function (_, i) { var l = document.createElementNS(NS, "line"), p = pt(i, R); l.setAttribute("x1", cx); l.setAttribute("y1", cy); l.setAttribute("x2", p[0]); l.setAttribute("y2", p[1]); l.setAttribute("class", "grid"); svg.appendChild(l); });
+  var area = document.createElementNS(NS, "polygon");
+  area.setAttribute("points", s.map(function (v, i) { return pt(i, R * Math.max(v, .3) / 5).join(","); }).join(" "));
+  area.setAttribute("class", "area");
+  svg.appendChild(area);
+  s.forEach(function (v, i) { var p = pt(i, R * Math.max(v, .3) / 5), c = document.createElementNS(NS, "circle"); c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 3.5); c.setAttribute("class", "dot"); svg.appendChild(c); });
+  AXES.forEach(function (n, i) {
+    var p = pt(i, R + 20), t = document.createElementNS(NS, "text");
+    t.setAttribute("x", p[0]); t.setAttribute("y", p[1] + 4);
+    t.setAttribute("text-anchor", Math.abs(p[0] - cx) < 10 ? "middle" : (p[0] > cx ? "start" : "end"));
+    t.textContent = n + " " + s[i];
+    svg.appendChild(t);
+  });
+  return svg;
+}
+
+function section(title, tag, lead) {
+  var s = el("section", "sec"), h = el("h3", "", title);
+  if (tag) h.appendChild(el("span", "", tag));
+  s.appendChild(h);
+  if (lead) s.appendChild(el("p", "lead", lead));
   app.appendChild(s);
+  return s;
 }
 
 function renderReport() {
-  var r = buildReport(picks);
-  document.getElementById("headline").textContent = "您的配对简报";
-  document.getElementById("subline").textContent = "这是初步建议。发送问卷后,我们会用 AI 为您配对。";
+  var a = answers(), s = scores(a), fam = family(a), m = match(a), w = workload(a, s);
+  setHeader("你家的 AI 帮佣报告", "根据你的 6 个答案整理,约 1 分钟读完。");
   app.textContent = "";
-  var h = el("h2", "", "您家的情况");
-  h.tabIndex = -1;
-  app.appendChild(h);
+
+  var badge = el("div", "badge");
+  var ring = el("div", "ring", fam[0]); ring.setAttribute("aria-hidden", "true");
+  badge.appendChild(ring);
+  badge.appendChild(el("small", "", "你的家庭类型"));
+  var h = el("h2", "", fam[1]); h.tabIndex = -1; badge.appendChild(h);
+  badge.appendChild(el("p", "", fam[2]));
   var chips = el("ul", "chips");
-  r.chips.forEach(function (c) { chips.appendChild(el("li", "", c)); });
-  app.appendChild(chips);
-  addList("比较适合的帮佣", r.fit);
-  addList("配对时要留意", r.watch);
-  var s = el("section", "block");
-  s.appendChild(el("h3", "", "时间安排"));
-  s.appendChild(el("p", "", r.time));
-  app.appendChild(s);
+  a.chips.forEach(function (c) { chips.appendChild(el("li", "", c)); });
+  badge.appendChild(chips);
+  app.appendChild(badge);
+
+  var s1 = section("你家的需求图", "满分 5", "分数越高,代表这方面越需要帮佣用心。");
+  s1.appendChild(radarSVG(s));
+  var order = AXES.map(function (n, i) { return [n, s[i]]; }).sort(function (x, y) { return y[1] - x[1]; });
+  s1.appendChild(el("p", "top3", "最重要的两件事:" + order[0][0] + "、" + order[1][0]));
+
+  var s2 = section("帮佣在你家的一天", "参考", "这样排,工作清楚,她也有休息。");
+  var ul = el("ul", "day");
+  day(a).forEach(function (r) { var li = el("li", r[2] ? "rest" : ""); li.appendChild(el("b", "", r[0])); li.appendChild(el("span", "", r[1])); ul.appendChild(li); });
+  s2.appendChild(ul);
+
+  var s3 = section("你可能没想到的事");
+  var ins = el("ul", "ins");
+  insights(a).forEach(function (r) { var li = el("li"); li.appendChild(el("i", "", r[0])); var d = el("div"); d.appendChild(el("b", "", r[1])); d.appendChild(el("span", "", r[2])); li.appendChild(d); ins.appendChild(li); });
+  s3.appendChild(ins);
+
+  var s4 = section("最适合你家的帮佣");
+  var tr = el("div", "traits");
+  m.traits.forEach(function (t) { tr.appendChild(el("div", "", t)); });
+  s4.appendChild(tr);
+  s4.appendChild(el("p", "qtitle", "面试时可以问她:"));
+  var ol = el("ol", "qs");
+  m.qs.forEach(function (q) { ol.appendChild(el("li", "", q)); });
+  s4.appendChild(ol);
+
+  var s5 = section("工作量检查");
+  s5.appendChild(el("p", "verdict", "工作量:" + w.label));
+  var mt = el("div", "meter"), mi = el("i"); mi.style.width = w.pct + "%"; mi.style.background = w.color; mt.appendChild(mi); s5.appendChild(mt);
+  var ld = el("div", "load"); ["轻松", "适中", "偏重"].forEach(function (t) { ld.appendChild(el("span", "", t)); }); s5.appendChild(ld);
+  s5.appendChild(el("p", "", w.text));
 
   var label = el("label", "extra", "还有什么想补充?(可不填)");
   label.htmlFor = "extra";
-  var box = el("textarea");
-  box.id = "extra";
-  box.maxLength = 300;
-  box.placeholder = "例如:长辈 82 岁,婆婆,住一楼";
+  var box = el("textarea"); box.id = "extra"; box.maxLength = 300; box.placeholder = "例如:长辈 82 岁,婆婆,住一楼";
   label.appendChild(box);
   app.appendChild(label);
 
-  var a = el("a", "cta", "发送问卷,获取 AI 配对结果");
+  var link = el("a", "cta", "发送报告,获取 AI 配对人选");
   function updateLink() {
-    var msg = "您好 Maju One,我填了 AI 配对问卷,请帮我配对。\n我的情况:" + r.chips.join("、");
+    var msg = "您好 Maju One,我做了 AI 帮佣报告,请帮我配对。\n家庭类型:" + fam[1] + "\n我的情况:" + a.chips.join("、") + "\n工作量:" + w.label;
     var more = box.value.trim();
     if (more) msg += "\n补充:" + more;
-    a.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
+    link.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
   }
   box.addEventListener("input", updateLink);
   updateLink();
-  a.target = "_blank";
-  a.rel = "noopener";
-  app.appendChild(a);
+  link.target = "_blank"; link.rel = "noopener";
+  app.appendChild(link);
   app.appendChild(el("p", "sub", "WhatsApp:018-989 1966 · 电话:018-577 1089"));
 
   var again = el("button", "again", "重新选择");
   again.type = "button";
-  again.onclick = function () {
-    step = 0; picks = [];
-    document.getElementById("headline").textContent = "AI 帮佣配对问卷";
-    document.getElementById("subline").textContent = "点选 6 题,先看初步简报,再由 AI 为您配对。";
-    renderQuestion(true);
-  };
+  again.onclick = function () { step = 0; picks = []; setHeader("不看八字,看你家的需要", "点选 6 题,马上看到你家的 AI 帮佣报告。"); renderQuestion(true); };
   app.appendChild(again);
-  app.appendChild(el("p", "note", "简报仅供初步参考,实际人选以当时可安排的情况为准。您的选择不会被保存,只有按下 WhatsApp 并发送后,我们才会收到。"));
+  app.appendChild(el("p", "note", "报告仅供参考,实际人选以当时可安排的情况为准。您的选择不会被保存,只有按下 WhatsApp 并发送后,我们才会收到。"));
   h.focus({ preventScroll: true });
   window.scrollTo(0, 0);
 }
