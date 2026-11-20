@@ -91,6 +91,20 @@ textarea { display: block; width: 100%; min-height: 84px; margin-top: 8px; paddi
 .note { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
+<!-- Meta Pixel:把下面的 PIXEL_ID 换成你在 Facebook 事件管理工具里的像素编号 -->
+<script>
+var PIXEL_ID = ""; // 例如 "1234567890123456"
+if (PIXEL_ID) {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+}
+function track(name, params) { try { if (window.fbq) fbq('track', name, params || {}); } catch (e) {} }
+</script>
 </head>
 <body>
 <header class="top">
@@ -222,6 +236,7 @@ function renderQuestion(moveFocus) {
     btn.appendChild(label);
     btn.onclick = function () {
       picks[step] = o;
+      if (step === 0) track("ViewContent", { content_name: "问卷开始", content_category: o.v });
       step++;
       if (step < TOTAL) renderQuestion(true); else renderReport();
     };
@@ -457,6 +472,7 @@ function renderReport() {
   label.appendChild(box);
   app.appendChild(label);
 
+  track("CompleteRegistration", { content_name: "AI 帮佣报告" });
   var link = el("a", "cta", "发送报告,获取 AI 配对人选");
   function updateLink() {
     var msg = "您好 Maju One,我做了 AI 帮佣报告,请帮我配对。\n家庭类型:" + fam[1] + "\n我的情况:" + a.chips.join("、") + "\n工作量:" + w.label;
@@ -467,6 +483,7 @@ function renderReport() {
   box.addEventListener("input", updateLink);
   updateLink();
   link.target = "_blank"; link.rel = "noopener";
+  link.addEventListener("click", function () { track("Contact"); track("Lead", { content_name: "WhatsApp 报告" }); });
   app.appendChild(link);
   app.appendChild(el("p", "sub", "WhatsApp:018-989 1966 · 电话:018-577 1089"));
 
